@@ -14,7 +14,7 @@ def export_analysis_bundle(mode: str, **kwargs: Any) -> str:
             payload[key] = value.to_dict(orient="records")
         else:
             payload[key] = value
-    return json.dumps(payload, ensure_ascii=False, indent=2)
+    return json.dumps(payload, ensure_ascii=False, indent=2, default=str)
 
 
 def dataframe_to_download_link(df: pd.DataFrame, filename: str) -> str:
