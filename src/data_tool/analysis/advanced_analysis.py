@@ -6,9 +6,7 @@ from src.data_tool.analysis.formulas import growth_rate
 
 
 def describe_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    """Return descriptive statistics with broad pandas-version compatibility."""
     try:
-        # pandas>=1.1 supports datetime_is_numeric in many versions, but not all environments.
         desc = df.describe(include="all", datetime_is_numeric=True)
     except TypeError:
         desc = df.describe(include="all")
@@ -16,8 +14,7 @@ def describe_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def group_summary(df: pd.DataFrame, group_col: str, value_col: str, agg: str = "sum") -> pd.DataFrame:
-    grouped = df.groupby(group_col, dropna=False)[value_col].agg(agg).reset_index()
-    return grouped.rename(columns={value_col: f"{value_col}_{agg}"})
+    return df.groupby(group_col, dropna=False)[value_col].agg(agg).reset_index(name=f"{value_col}_{agg}")
 
 
 def correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
@@ -44,8 +41,7 @@ def trend_analysis(df: pd.DataFrame, date_col: str, value_col: str, freq: str = 
     result["rolling_avg"] = result["value"].rolling(3, min_periods=1).mean()
     result["cumulative_sum"] = result["value"].cumsum()
     result = result.reset_index()
-    result = result.rename(columns={date_col: "period"})
-    return result
+    return result.rename(columns={date_col: "period"})
 
 
 def add_period_comparison(trend_df: pd.DataFrame, date_col: str = "period", value_col: str = "value") -> pd.DataFrame:
@@ -58,7 +54,7 @@ def add_period_comparison(trend_df: pd.DataFrame, date_col: str = "period", valu
 
 
 def top_bottom_analysis(df: pd.DataFrame, value_col: str, n: int = 10) -> tuple[pd.DataFrame, pd.DataFrame]:
-    numeric_df = df.copy()
-    numeric_df[value_col] = pd.to_numeric(numeric_df[value_col], errors="coerce")
-    numeric_df = numeric_df.dropna(subset=[value_col]).sort_values(value_col)
-    return numeric_df.tail(n), numeric_df.head(n)
+    sorted_df = df.copy()
+    sorted_df[value_col] = pd.to_numeric(sorted_df[value_col], errors="coerce")
+    sorted_df = sorted_df.dropna(subset=[value_col]).sort_values(value_col)
+    return sorted_df.tail(n), sorted_df.head(n)

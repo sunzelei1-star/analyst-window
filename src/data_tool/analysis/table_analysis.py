@@ -14,8 +14,7 @@ def build_summary_statistics(df: pd.DataFrame) -> pd.DataFrame:
     summary = pd.concat([dtypes, uniques, missing], axis=1)
     if not numeric_desc.empty:
         summary = summary.join(numeric_desc, how="left")
-    summary = summary.reset_index().rename(columns={"index": "column"})
-    return summary
+    return summary.reset_index().rename(columns={"index": "column"})
 
 
 def filter_table(df: pd.DataFrame, column: str, query: str) -> pd.DataFrame:
@@ -59,13 +58,13 @@ def build_visualization(
         ax.set_title(f"{target} 分布")
     elif chart_type == "热力图":
         numeric_df = df.select_dtypes(include="number")
-        if numeric_df.empty:
-            plt.close(fig)
-            return None
         try:
             corr = numeric_df.corr(numeric_only=True)
         except TypeError:
             corr = numeric_df.corr()
+        if corr.empty:
+            plt.close(fig)
+            return None
         sns.heatmap(corr, cmap="RdBu_r", center=0, ax=ax)
         ax.set_title("数值列相关性热力图")
     else:
