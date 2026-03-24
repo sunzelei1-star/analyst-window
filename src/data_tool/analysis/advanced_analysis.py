@@ -4,26 +4,35 @@ import pandas as pd
 
 from src.data_tool.analysis.formulas import growth_rate
 
-
 def describe_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    return df.describe(include="all", datetime_is_numeric=True).T.fillna("")
+    try:
+        return df.describe(include="all", datetime_is_numeric=True).T.fillna("")
+    except TypeError:
+        return df.describe(include="all").T.fillna("")
 
 
 def group_summary(df: pd.DataFrame, group_col: str, value_col: str, agg: str = "sum") -> pd.DataFrame:
-    return df.groupby(group_col, dropna=False)[value_col].agg(agg).reset_index(name=f"{value_col}_{agg}")
+    result = df.groupby(group_col, dropna=False)[value_col].agg(agg).reset_index()
+    result = result.rename(columns={value_col: agg})
+    return result
 
 
 def correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
     numeric_df = df.select_dtypes(include="number")
     if numeric_df.empty:
         return pd.DataFrame()
-    return numeric_df.corr(numeric_only=True)
+    try:
+        return numeric_df.corr(numeric_only=True)
+    except TypeError:
+        return numeric_df.corr()
 
 
 def trend_analysis(df: pd.DataFrame, date_col: str, value_col: str, freq: str = "M") -> pd.DataFrame:
     tmp = df[[date_col, value_col]].dropna().copy()
     tmp[date_col] = pd.to_datetime(tmp[date_col], errors="coerce")
+    tmp[value_col] = pd.to_numeric(tmp[value_col], errors="coerce")
     tmp = tmp.dropna().sort_values(date_col)
+
     if tmp.empty:
         return pd.DataFrame(columns=["period", "value", "growth_rate", "rolling_avg", "cumulative_sum"])
 
@@ -32,8 +41,8 @@ def trend_analysis(df: pd.DataFrame, date_col: str, value_col: str, freq: str = 
     result["growth_rate"] = growth_rate(result["value"], result["value"].shift(1))
     result["rolling_avg"] = result["value"].rolling(3, min_periods=1).mean()
     result["cumulative_sum"] = result["value"].cumsum()
-    return result.reset_index(names="period")
-
+    result = result.reset_index().rename(columns={date_col: "period"})
+    return result
 
 def add_period_comparison(trend_df: pd.DataFrame, date_col: str = "period", value_col: str = "value") -> pd.DataFrame:
     if trend_df.empty:
@@ -44,6 +53,8 @@ def add_period_comparison(trend_df: pd.DataFrame, date_col: str = "period", valu
     return result
 
 
-def top_bottom_analysis(df: pd.DataFrame, value_col: str, n: int = 10) -> tuple[pd.DataFrame, pd.DataFrame]:
-    sorted_df = df.sort_values(value_col)
-    return sorted_df.tail(n), sorted_df.head(n)
+def top_bottom_analysis(df: pd.DataFrame, value_col: str, n: int = 5):
+    tmp = df.copy()
+    tmp[value_col] = pd.to_numeric(tmp[value_col], errors="coerce")
+    tmp = tmp.dropna(subset=[value_col]).sort_values(value_col)
+    return tmp.tail(n), tmp.head(n)
