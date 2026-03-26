@@ -9,23 +9,57 @@ def apply_dashboard_style() -> None:
         """
         <style>
         :root {
-            --bg-main: #f4f7fb;
-            --card-bg: #ffffff;
-            --accent: #2563eb;
-            --accent-soft: #dbeafe;
-            --text-main: #0f172a;
-            --text-muted: #475569;
-            --border: #dbe3ef;
+            --app-bg: var(--background-color);
+            --surface-bg: var(--secondary-background-color);
+            --text-main: var(--text-color);
+            --text-muted: color-mix(in srgb, var(--text-color) 72%, transparent);
+            --border: color-mix(in srgb, var(--text-color) 22%, transparent);
+            --shadow: color-mix(in srgb, var(--text-color) 14%, transparent);
+            --btn-bg: color-mix(in srgb, var(--primary-color) 18%, var(--surface-bg));
+            --btn-border: color-mix(in srgb, var(--primary-color) 45%, transparent);
+            --btn-text: color-mix(in srgb, var(--primary-color) 74%, var(--text-main));
         }
+
+        @supports not (color: color-mix(in srgb, white, black)) {
+            :root {
+                --text-muted: #64748b;
+                --border: rgba(100, 116, 139, 0.35);
+                --shadow: rgba(15, 23, 42, 0.14);
+                --btn-bg: rgba(37, 99, 235, 0.12);
+                --btn-border: rgba(37, 99, 235, 0.35);
+                --btn-text: var(--text-main);
+            }
+        }
+
         .stApp {
-            background: linear-gradient(180deg, #f8fbff 0%, var(--bg-main) 100%);
+            background: linear-gradient(
+                180deg,
+                color-mix(in srgb, var(--app-bg) 75%, white) 0%,
+                var(--app-bg) 100%
+            );
+            color: var(--text-main);
+        }
+        @media (prefers-color-scheme: dark) {
+            .stApp {
+                background: linear-gradient(
+                    180deg,
+                    color-mix(in srgb, var(--app-bg) 85%, black) 0%,
+                    var(--app-bg) 100%
+                );
+            }
         }
         div[data-testid="stMetric"] {
-            background: var(--card-bg);
+            background: var(--surface-bg);
             border: 1px solid var(--border);
             border-radius: 14px;
             padding: 0.8rem 1rem;
-            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+            box-shadow: 0 4px 18px var(--shadow);
+        }
+        div[data-testid="stMetric"] label,
+        div[data-testid="stMetric"] [data-testid="stMetricLabel"],
+        div[data-testid="stMetric"] [data-testid="stMetricValue"],
+        div[data-testid="stMetric"] [data-testid="stMetricDelta"] {
+            color: var(--text-main) !important;
         }
         .hero-wrap {
             border-radius: 18px;
@@ -42,16 +76,16 @@ def apply_dashboard_style() -> None:
         }
         .hero-subtitle {
             margin-top: 0.4rem;
-            color: #e2e8f0;
+            color: rgba(241, 245, 249, 0.95);
             font-size: 0.95rem;
         }
         .section-card {
-            background: var(--card-bg);
+            background: var(--surface-bg);
             border: 1px solid var(--border);
             border-radius: 14px;
             padding: 1rem 1rem 0.6rem;
             margin-bottom: 0.9rem;
-            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+            box-shadow: 0 6px 16px var(--shadow);
         }
         .section-title {
             color: var(--text-main);
@@ -59,6 +93,15 @@ def apply_dashboard_style() -> None:
             font-weight: 700;
             margin-bottom: 0.7rem;
         }
+        .section-card p,
+        .section-card li,
+        .section-card span,
+        .section-card label,
+        .section-card .stMarkdown,
+        .section-card .stCaption {
+            color: var(--text-main);
+        }
+
         div[data-testid="stDataFrame"] {
             border: 1px solid var(--border);
             border-radius: 12px;
@@ -66,13 +109,18 @@ def apply_dashboard_style() -> None:
         }
         .stTabs [data-baseweb="tab"] {
             font-weight: 600;
+            color: var(--text-main);
         }
         .stButton button, .stDownloadButton button {
             border-radius: 10px;
             font-weight: 700;
-            border: 1px solid #bfdbfe;
-            background: #eff6ff;
-            color: #1e40af;
+            border: 1px solid var(--btn-border);
+            background: var(--btn-bg);
+            color: var(--btn-text);
+        }
+
+        section[data-testid="stSidebar"] * {
+            color: var(--text-main);
         }
         </style>
         """,
