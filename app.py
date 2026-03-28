@@ -16,7 +16,13 @@ from src.data_tool.analysis.finance_analysis import (
     summarize_finance_metrics,
 )
 from src.data_tool.analysis.formulas import conversion_rate, growth_rate, margin, weighted_average
-from src.data_tool.analysis.table_analysis import build_summary_statistics, build_visualization
+from src.data_tool.analysis.table_analysis import (
+    build_chart_presentation,
+    build_summary_statistics,
+    build_visualization,
+    is_time_like_series,
+    recommended_chart_type,
+)
 from src.data_tool.processing.table_cleaner import clean_table_data, detect_outliers
 from src.data_tool.reporting.exporter import dataframe_to_download_link, export_analysis_bundle
 from src.data_tool.reporting.insights import (
@@ -83,7 +89,7 @@ if not loaded:
 
 mode = loaded["mode"]
 mode_text = t(lang, "mode_table") if mode == "table" else t(lang, "mode_finance") if mode == "finance" else t(lang, "mode_text")
-render_hero(mode_text)
+render_hero(t(lang, "hero_title"), t(lang, "hero_subtitle", mode=mode_text))
 
 if mode in {"table", "finance"}:
     raw_df = loaded["data"]
@@ -203,7 +209,29 @@ if mode in {"table", "finance"}:
         chart_type = st.radio("图表类型 / Chart", options=chart_options, horizontal=True)
         x_col = st.selectbox("X 轴 / X", options=all_cols)
         y_col = st.selectbox("Y 轴（若适用）/ Y", options=[""] + numeric_cols)
-        fig = build_visualization(cleaned_df, chart_type, x_col, y_col or None)
+        is_time_axis = is_time_like_series(cleaned_df[x_col])
+        smart_chart_type = recommended_chart_type(chart_type, is_time_axis, y_col or None)
+        dark_mode = st.get_option("theme.base") == "dark"
+        presentation = build_chart_presentation(
+            lang=lang,
+            x_col=x_col,
+            y_col=y_col or None,
+            chart_type=smart_chart_type,
+            is_time_axis=is_time_axis,
+        )
+        st.markdown(f"#### {presentation.title}")
+        st.caption(presentation.subtitle)
+        if smart_chart_type != chart_type and is_time_axis:
+            st.info(t(lang, "chart_auto_switched"))
+
+        fig = build_visualization(
+            cleaned_df,
+            smart_chart_type,
+            x_col,
+            y_col or None,
+            presentation=presentation,
+            dark_mode=dark_mode,
+        )
         if fig is not None:
             st.pyplot(fig, clear_figure=True)
     section_end()

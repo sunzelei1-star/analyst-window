@@ -91,12 +91,12 @@ def apply_dashboard_style() -> None:
     )
 
 
-def render_hero(mode_text: str) -> None:
+def render_hero(title: str, subtitle: str) -> None:
     st.markdown(
         f"""
         <div class="hero-wrap">
-            <p class="hero-title">📊 Business Intelligence Dashboard</p>
-            <p class="hero-subtitle">当前数据模式：{mode_text} ｜ 支持清洗、趋势、Top/Bottom 解释与一键导出</p>
+            <p class="hero-title">📊 {title}</p>
+            <p class="hero-subtitle">{subtitle}</p>
         </div>
         """,
         unsafe_allow_html=True,
