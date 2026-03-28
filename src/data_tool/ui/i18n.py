@@ -47,6 +47,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "key_findings_rule": "关键发现（规则摘要）",
         "download_json": "下载分析结果（JSON）",
         "finance_panel": "金融/财务分析",
+        "hero_title": "商业智能分析看板",
+        "hero_subtitle": "当前数据模式：{mode} ｜ 支持清洗、趋势、Top/Bottom 解读与一键导出",
+        "chart_auto_switched": "已检测到时间字段，默认切换为趋势更清晰的折线图（你仍可手动切换图表类型）。",
     },
     "en": {
         "lang_label": "Language / 语言",
@@ -92,6 +95,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "key_findings_rule": "Key findings (rule summary)",
         "download_json": "Download analysis bundle (JSON)",
         "finance_panel": "Finance Panel",
+        "hero_title": "Business Intelligence Dashboard",
+        "hero_subtitle": "Current mode: {mode} | Supports cleaning, trend analysis, Top/Bottom explanation, and one-click export",
+        "chart_auto_switched": "A time field is detected, so chart defaults to line view for trend readability (you can still switch chart type).",
     },
 }
 
